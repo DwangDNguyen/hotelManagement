@@ -1,0 +1,121 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Hotel {
+  id                  String        @id @default(cuid())
+  userId              String
+  title               String        @db.Text
+  description         String        @db.LongText
+  images              HotelImages[]
+  country             String
+  state               String
+  city                String
+  locationDescription String        @db.LongText
+  longitude           String
+  latitude            String
+  gym                 Boolean       @default(false)
+  spa                 Boolean       @default(false)
+  bar                 Boolean       @default(false)
+  laundry             Boolean       @default(false)
+  restaurant          Boolean       @default(false)
+  shopping            Boolean       @default(false)
+  freeParking         Boolean       @default(false)
+  bikeRental          Boolean       @default(false)
+  freeWifi            Boolean       @default(false)
+  movieNights         Boolean       @default(false)
+  swimmingPool        Boolean       @default(false)
+  coffeeShop          Boolean       @default(false)
+  addedAt             DateTime      @default(now())
+  updatedAt           DateTime      @default(now())
+  rooms               Room[]
+  bookings            Booking[]
+
+  @@fulltext([title])
+}
+
+model HotelImages {
+  id      String @id @default(cuid())
+  url     String
+  hotelId String
+  hotel   Hotel  @relation(fields: [hotelId], references: [id])
+}
+
+model Room {
+  id            String   @id @default(cuid())
+  hotelId       String
+  title         String   @db.Text
+  description   String   @db.LongText
+  bedCount      Int      @default(0)
+  guestCount    Int      @default(0)
+  bathroomCount Int      @default(0)
+  price         Int
+  image         String
+  roomService   Boolean  @default(false)
+  TV            Boolean  @default(false)
+  balcony       Boolean  @default(false)
+  freeWifi      Boolean  @default(false)
+  cityView      Boolean  @default(false)
+  oceanView     Boolean  @default(false)
+  forestView    Boolean  @default(false)
+  mountainView  Boolean  @default(false)
+  airCondition  Boolean  @default(false)
+  soundProofed  Boolean  @default(false)
+  addedAt       DateTime @default(now())
+  updatedAt     DateTime @default(now())
+
+  hotel Hotel? @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+
+  booking Booking[]
+
+  @@index([hotelId])
+}
+
+model Booking {
+  id              String   @id @default(cuid())
+  username        String
+  userEmail       String
+  checkIn         DateTime
+  checkOut        DateTime
+  price           Int
+  hotelId         String
+  roomId          String
+  userId          String
+  hotelOwnerId    String
+  currency        String
+  paymentStatus   Boolean  @default(false)
+  paymentIntentId String   @unique
+  bookedAt        DateTime @default(now())
+  addedAt         DateTime @default(now())
+  updatedAt       DateTime @default(now())
+
+  hotel Hotel? @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  room  Room?  @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  // user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // @@index([userId])
+
+  @@index([hotelId])
+  @@index([roomId])
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  content   String
+  image     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
