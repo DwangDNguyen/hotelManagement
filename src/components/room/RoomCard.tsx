@@ -158,12 +158,14 @@ const RoomCard = ({ hotel, room, bookings = [] }: RoomCardProps) => {
 
     const handleBookRoom = async () => {
         setBookingIsLoading(true);
-        if (!userId) {
+        if (date?.from && date?.to && !userId) {
             toast({
                 variant: "error",
                 description: "Please login to book a room",
             });
             setBookingIsLoading(false);
+            router.push("/sign-in");
+            return;
         }
         if (!hotel?.userId) {
             toast({
@@ -205,6 +207,7 @@ const RoomCard = ({ hotel, room, bookings = [] }: RoomCardProps) => {
                 )
                 .then((res) => {
                     setBookingIsLoading(false);
+                    console.log(res);
                     if (res.status === 401) {
                         return router.push("/login");
                     }
